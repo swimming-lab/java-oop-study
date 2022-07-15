@@ -12,12 +12,12 @@
 
 도메인 구성도
 
-![2-1](https://github.com/swimming-lab/java-oop-study/blob/master/2-movie-reservation/2-1.PNG)
+![2-1](https://github.com/swimming-lab/study-java-object/blob/master/2-movie-reservation/2-1.png)
 
 
 클래스 다이어그램
 
-![2-2](https://github.com/swimming-lab/java-oop-study/blob/master/2-movie-reservation/2-2.PNG)
+![2-2](https://github.com/swimming-lab/study-java-object/blob/master/2-movie-reservation/2-2.png)
 
 ### 교재 정리
 
