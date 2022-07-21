@@ -32,7 +32,8 @@
 
 **Low Coupling 패턴(낮은 결합도)**
 
-그림[5.2]
+![[그림 5-2]](https://github.com/swimming-lab/study-java-object/raw/master/05-movie-reservation-design-responsibility/5-2.png)
+[그림 5-2]
 
 그림에서 보는것 처럼 Screening과 DiscountCondition과 협력할 경우 둘 사이의 새로운 결합도가 추가된다. 
 
@@ -59,7 +60,8 @@ Screening의 가장 중요한 역할은 예매를 생성하는 것이다. 만약
 
 Reservation을 잘 알거나, 긴밀하게 사용하거나, 초기화에 필요한 데이터를 가지고 있는 객체는 Screening이다.
 
-그림[5-3]
+![[그림 5-3]](https://github.com/swimming-lab/study-java-object/raw/master/05-movie-reservation-design-responsibility/5-3.png)
+[그림 5-3]
 
 **Polymorphism 패턴(다형성)**
 
