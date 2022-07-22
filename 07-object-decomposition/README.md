@@ -90,7 +90,9 @@ main("직원A")
 
 하향식 기능 분해는 논리적이고 체계적인 시스템 개발 절차를 제시한다.
 
-[그림7-2]
+![[그림 7-2]](https://github.com/swimming-lab/study-java-object/raw/master/07-object-decomposition/7-2.png)
+
+[그림 7-2]
 
 **하향식 기능 분해의 문제점**
 
@@ -181,7 +183,7 @@ def getTaxRate()
 	return gets().chomp().to_f()
 end
 
-def descripbeResult(name, pay)
+def describeResult(name, pay)
 	return "이름: #{name}, 급여: #{pay}"
 end
 
@@ -202,3 +204,93 @@ end
     - 인스턴스의 개념을 제공하지 않는다.
     - Employees 모듈은 단지 회사에 속한 모든 직원 정보를 가지고 있는 모듈일 뿐이다.
     - 추상화 메커니즘이 필요, 이를 만족시키기 위한 개념이 추상 데이터 타입이다.
+    
+
+### 데이터 추상화와 추상 데이터 타입
+
+**추상 데이터 타입**
+
+추상 데이터 타입을 구현하려면 다음과 같은 특성을 위한 프로그래밍 언어의 지원이 필요하다.
+
+- 타입 정의를 선언할 수 있어야 한다.
+- 타입의 인스턴스를 다루기 위해 사용할 수 있는 오퍼레이션의 집합을 정의할 수 있어야 한다.
+- 제공된 오퍼레이션을 통해서만 조작할 수 있도록 데이터를 외부로부터 보호할 수 있어야 한다.
+- 타입에 대해 여러 개의 인스턴스를 생성할 수 있어야 한다.
+
+```ruby
+Employee = Struct.new(:name, :basePay, :hourly, :timeCard) do
+	def calculatePay(taxRate)
+		if (hourly) then
+			return calculateHourlyPay(taxRate)
+		end
+		return calculateSalariedPay(taxRate)
+
+	def monthlyBasePay()
+		if (hourly) then return 0 end
+		return basePay
+	end
+
+private
+	def calculateHourlyPay(taxRate)
+		return (basePay * timeCard) - (basePay * timeCard) * taxratx
+	end
+
+	def calculateSalariedPay(taxRate)
+		return basePay - (basePay * taxRate)
+	end
+end
+End
+
+$employees = [
+	Employee.new("직원A", 400, false, 0),
+	Employee.new("직원B", 300, false, 0),
+	Employee.new("직원C", 250, false, 0),
+	Employee.new("아르바이트D", 1, true, 120),
+	Employee.new("아르바이트E", 1, true, 120),
+	Employee.new("아르바이트F", 1, true, 120)
+]
+
+def calculatePay(name)
+	taxRate = getTaxRate()
+	for each in $employees
+		if (each.name == name) then employee = each; break end
+	end
+	pay = employee.calculatePay(taxRate)
+	puts(describeResult(name, pay))
+end
+
+def getTaxRate()
+	print("세율을 입력하세요: ")
+	return gets().chomp().to_f()
+end
+
+def describeResult(name, pay)
+	return "이름: #{name}, 급여: #{pay}"
+end
+
+def sumOfBasePays()
+	result = 0
+	for each in $employees
+		result += each.monthlyBasePay()
+	end
+	puts(result)
+end
+```
+
+추상 데이터 타입은 데이터에 대한 관점을 설계의 표면으로 끌어올리기는 하지만 여전히 데이터와 기능을 분리하는 절차적인 설계의 틀에 갇혀 있다.
+
+### 클래스
+
+**클래스는 추상 데이터 타입인가?**
+
+대부분의 서적에서 클래스를 추상 데이터 타입으로 설명한다.
+
+그러나 명확한 의미에서 추상 데이터 타입과 클래스는 동일하지 않다. 가장 핵심적인 차이는 클래스는 상속과 다형성을 지원하는 데 비해 추상 데이터 타입은 지원하지 못한다.
+
+윌리엄 쿡(William Cook)의 정의를 빌리면 추상 데이터 타입은 타입을 추상화 한 것(type abstraction)이고 클래스는 절차를 추상화한 것(precedural abstraction)이다.
+
+위 예제에서 Employee 내부에는 정규 직우너과 아르바이트 직원이라는 두 개의 타입이 공존한다.
+
+객체지향은 정규 직원과 아르바이트 직원 각각에 대한 클래스를 정의하고 각 클래스들이 calculatePay와 monthlyBasePay 오퍼레이션을 적절하게 구현하게 될 것이다.
+
+**추상 데이터 타입에서 클래스로 변경하기**
