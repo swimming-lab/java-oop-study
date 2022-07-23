@@ -294,3 +294,82 @@ end
 객체지향은 정규 직원과 아르바이트 직원 각각에 대한 클래스를 정의하고 각 클래스들이 calculatePay와 monthlyBasePay 오퍼레이션을 적절하게 구현하게 될 것이다.
 
 **추상 데이터 타입에서 클래스로 변경하기**
+
+이전에는 Employee라는 하나의 타입 안에 두 가지 직원 타입을 캡슐화했다. 두 가지 클래스로 분배해자.
+
+```ruby
+// 추상 클래스
+class Employee
+	attr_reader :name, :basePay
+
+	def initialize(name, basePay)
+		@name = name
+		@basePay = basePay
+	end
+
+	// 추상 메서드
+	def calculatePay(taxRate)
+		raise NotImplementedError
+	end
+
+	// 추상 메서드
+	def monthlyBasePay()
+		raise NotImplementedError
+	end
+end
+
+class SalariedEmployee < Employee
+	def initialize(name, basePay)
+		super(name, basePay)
+	end
+
+	def calculatePay(taxRate)
+		return basePay - (basePay * taxRate)
+	end
+
+	def monthlyBasePay()
+		return basepay
+	end
+end
+
+class HourlyEmployee < Employee
+	attr_reader :timeCard
+
+	def initialize(name, basePay, timeCard)
+		super(name, basePay)
+		@timeCard = timeCard
+	end
+
+	def calculatePay(taxRate)
+		return (basePay * timeCard) - (basePay * timeCard) * taxRate
+	end
+
+	def monthlyBasePay()
+		return 0
+	end
+end
+
+...
+$employees = [
+	SalariedEmployee.new("직원A", 400, false),
+	SalariedEmployee.new("직원B", 300, false),
+	SalariedEmployee.new("직원C", 250, false),
+	HourlyEmployee.new("아르바이트D", 1, 120),
+	HourlyEmployee.new("아르바이트E", 1, 120),
+	HourlyEmployee.new("아르바이트F", 1, 120)
+]
+...
+
+```
+
+클라이언트 입장에서는 SalariedEmployee와 HourlyEmployee의 인스턴스 모두 부모 클래스인 Employee의 인스턴스인 것처럼 다룰 수 있다. 클라이언트는 메시지를 수신할 객체의 구체적인 클래스에 관해 고민할 필요가 ㅇ벗다. 그저 수신자가 이해할 것으로 예상되는 메시지를 전송하기만 하면 된다.
+
+**변경을 기준으로 선택하라**
+
+단순히 클래스를 구현 단위로 사용한다는 것이 객체지향 프로그래밍을 한다는 것을 의미하지는 않는다. 타입을 기준으로 절차를 추상화하지 않았다면 그것은 객체지향 분해가 아니다.
+
+클래스가 추상 데이터 타입의 개념을 따르는지 확인할 수 있는 방법은 클래스 내부에 인스턴스의 타입을 표현하는 변수가 있는지를 살펴보는 것이다. 추상 데이터 타입으로 구현된 Employee 클래스를 보면 hourly라는 변수에 직원 유형을 저장하고 있다. 이 값을 기반으로 메서드 내에서 타입을 명시적으로 구분하는 방식은 객체지향을 위반하는 것으로 간주한다.
+
+객체지향에서 타입 변수를 이용한 조건문을 다형성으로 대체한다.
+
+다형성으로 대체하여 새로운 로직을 추가하기 위해 클라이언트 코드를 수정할 필요가 없다. 이것을 객체지향의 개방-폐쇄 원칙(Open-Closed Principle, OCP)라고 부른다.
