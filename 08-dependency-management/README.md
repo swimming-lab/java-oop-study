@@ -30,6 +30,9 @@ public class PeriodCondition implements DiscountCondition {
 
 위 예시의 PeriodCondition 클래스는 DayOfWeek, LocalTime, Screening, DiscountCondition에 의존하고 있다.
 
+![[그림8-2]](https://github.com/swimming-lab/study-java-object/raw/master/08-dependency-management/8-2.png)
+
+
 [그림8-2]
 
 ### **의존성 전이(Transitive Dependency)**
@@ -54,6 +57,8 @@ public class PeriodCondition implements DiscountCondition {
 - 컴파일타임 의존성(Compile-time Dependency)
     - 작성된 코드를 컴파일하는 시점
     - 클래스 사이의 의존성
+
+![[그림8-5]](https://github.com/swimming-lab/study-java-object/raw/master/08-dependency-management/8-5.png)
 
 [그림8-5]
 
@@ -163,3 +168,115 @@ Movie 클래스가 추상 클래스인 DiscountPolicy 클래스에 의존하는 
 의존성이 명시적이지 않으면 클래스를 다른 컨텍스트에서 재사용하기 위해 내부 구현을 직접 변경해야 한다는 것이다. 
 
 클래스가 다른 클래스를 의존하는 것은 부끄러운 일이 아니다. 의존성은 다른 객체와의 협력을 가능하게 해주기 때문에 바람직한 것이다. 경계해야 할 것은 의존성 자체가 아니라 의존성을 감추는 것이다.
+
+### new는 해롭다
+
+- new 연산자를 사용하기 위해서는 구체 클래스의 이름을 직접 기술해야 한다. 따라서 new를 사용하는 클라이언트는 추상화가 아닌 구체 클래스에 의존할 수밖에 없기 때문에 결합도가 높아진다.
+- new 연산자는 생성하려는 구체 클래스뿐만 아니라 어떤 인자를 이용해 클래스의 생성자를 호출해야 하는지도 알아야 한다. 따라서 new를 사용하면 클라이언트가 알아야 하는 지식의 양이 늘어나기 때문에 결합도가 높아진다.
+
+해결 방법은 인스턴스를 생성하는 로직과 생성된 인스턴스를 사용하는 로직을 분리하는 것이다.
+
+AmountDiscountPolicy를 사용하는 Movie는 인스턴스를 생성해서는 안 된다. 단지 해당하는 인스턴스를 외부로부터 전달받아 사용해야 한다.
+
+```java
+// 개선 전
+public class Movie {
+	...
+	public Movie(...) {
+		...
+		this.discountPolicy = new AmountDiscountPolicy(...);
+	}
+}
+
+// 개선 후
+public class Movie {
+	...
+	public Movie(..., DiscountPolicy discountPolicy) {
+		...
+		this.discountPolicy = discountPolicy;
+	}
+}
+```
+
+사용과 생성의 책임을 분리하고, 의존성을 생성자에 명시적으로 드러내고, 구체 클래스가 아닌 추상 클래스에 의존하게 함으로써 설계를 유연하게 만들 수 있다. 그리고 그 출발은 객체를 생성하는 책임을 객체 내부가 아니라 클라이언트로 옮기는 것에서 시작한다.
+
+### 가끔은 생성해도 무방하다
+
+클래스 안에서 객체의 인스턴스를 직접 생성하는 방식이 유용한 경우도 있다. 주로 협력하는 기본 객체를 설정하고 싶은 경우가 여기에 속한다.
+
+예를 들어 Movie가 대부분의 경우 AmountDiscountPolicy의 인스턴스와 협력한다면 인스턴스 생성을 클라이언트에서만 책임진다면 중복 코드가 늘어나고 Movie 사용성도 나빠질 것이다. 생성자 체이닝 기법을 사용해 의도적으로 생성자를 추가할 수 있다.
+
+```java
+// 의도적으로 생성자를 추가하여 클라이언트의 중복 코드를 제거한다.
+public class Movie {
+	...
+	public Movie(String title, Duration runningTime) {
+		this(title, runningTime, new AmountDiscountPolicy(...));
+	}
+
+	public Movie(..., DiscountPolicy discountPolicy) {
+		...
+		this.discountPolicy = discountPolicy;
+	}
+}
+```
+
+그럼에도 가급적 구체 클래스에 대한 의존성을 제거할 수 있는 방법을 찾아봐야 한다.
+
+### 표준 클래스에 대한 의존성은 해롭지 않다.
+
+의존성이 불편한 이유는 그것이 항상 변경에 대한 영향을 암시하기 때문이다. 변경될 확률이 거의 없는 클래스라면 의존성이 문제가 되지 않는다.
+
+예를 들어 JDK에 포함된 표준 클래스가 이 부류에 속한다.
+
+new ArrayList와 같은 생성자는 수정될 확률이 0에 가깝기 때문에 직접 생성하더라도 문제가 되지 않는다.
+
+### 컨텍스트 확장하기
+
+Movie객체가 유연하다는 사실을 입증하기 위해 두 가지 예를 살펴본다.
+
+1. 할인 혜택을 제공하지 않는 경우
+    1. Movie에서 DiscountPolicy 인스턴스를 Null값을 주지 않고
+    2. 할인을 하지 않은 정책 클래스를 동일하게 작성한다.
+
+```java
+public class NoneDiscountPolicy extends DiscountPolicy {
+	@Override
+	protected Money getDiscountAmount(Srcreening screening) {
+		return Money.ZERO;
+	}
+}
+```
+
+1. 중복 적용이 가능한 할인 정책을 추가할 경우
+    1. List로 구성된 DiscountPolicy를 여러가 받아야 한다.
+    2. Movie의 멤버변수 discountPolicy의 타입을 List로 바꾸지 않고
+    3. 동일한 방법으로 여러 할인 정책을 수행할 수 있는 정책 클래스를 작성한다.
+
+```java
+public class OverlappedDiscountPolicy extends DiscountPolicy {
+	private List<DiscountPolicy> discountPolicies = new ArrayList<>();
+	public OverlappedDiscountPolicy(DiscountPolicy ... discountPolicies) {
+		this.discountPolicies = Arrays.asList(discountPolicies);
+	}
+
+	@Override
+	protected Money getDiscountAmount(Screeing screening) {
+		Money result = Money.ZERO;
+		for (DiscountPolicy each : discountPolicies) {
+			result = result.plus(each.calculateDiscountAmount(screening));
+		}
+		return result;
+	}
+}
+```
+
+이 예제들은 Movie를 수정하지 않고도 새로운 기능을 추가하는 것이 얼마나 간단한지를 보여준다.
+
+Movie가 DiscountPolicy라는 추상화에 의존하고, 생성자를 통해 DiscountPolicy에 대한 의존성을 명시적으로 드러냈으며, new와 같이 구체 클래스를 직접적으로 다뤄야 하는 책임을 Movie 외부로 옮겼기 때문이다.
+
+### 조합 가능한 행동
+
+어떤 객체와 협력하느냐에 따라 객체의 행동이 달라지는 것은 유연하고 재사용 가능한 설계가 가진 특징이다. 유연하고 재사용 가능한 설계는 응집도 높은 책임들을 가진 작은 객체들을 다양한 방식으로 연결함으로써 애플리케이션의 기능을 쉽게 확장할 수 있다.
+
+훌륭한 객체지향 설계란 무엇을 하는지를 표현하는 것이 아니라 객체들의 조합을 선언적으로 표현함으로써 객체들이 무엇을 하는지를 표현하는 설계다.
