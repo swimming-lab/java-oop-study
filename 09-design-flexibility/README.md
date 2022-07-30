@@ -16,7 +16,7 @@
 영화 예매 시스템은 이미 개방-폐쇄 원칙을 따른다. 컴파일타임 의존성 관점에서는 Movie 클래스는 추상 클래스인 DiscountPolicy에 의존한다. 런타임 의존성 관점에서 Movie 인스턴스는 AmountDiscountPolicy와 PercentDiscountPolicy 인스턴스에 의존한다.
 
 중복 할인 정책을 추가하기 위해 한 일은 DiscountPolicy의 자식 클래스로 OverlappedDiscountPolicy 클래스를 추가한 것 뿐이다. 기존 코드 중 어떤 것도 수정하지 않았다.
-![[그림9-2]](https://github.com/swimming-lab/study-java-object/raw/master/09-design-flexibilityt/9-2.png)
+![[그림9-2]](https://github.com/swimming-lab/study-java-object/raw/master/09-design-flexibility/9-2.png)
 
 [그림9-2]
 
@@ -47,7 +47,7 @@ public class Client {
 }
 ```
 
-![[그림9-5]](https://github.com/swimming-lab/study-java-object/raw/master/09-design-flexibilityt/9-5.png)
+![[그림9-5]](https://github.com/swimming-lab/study-java-object/raw/master/09-design-flexibility/9-5.png)
 
 [그림9-5]
 
@@ -81,7 +81,7 @@ public class Client {
 
 FACTORY를 사용하면 Movie와 AmountDiscountPolicy를 생성하는 책임 모두를 FACTORY로 이동할 수 있다. Client는 오직 사용과 관련된 책임만 진다.
 
-![[그림9-6]](https://github.com/swimming-lab/study-java-object/raw/master/09-design-flexibilityt/9-6.png)
+![[그림9-6]](https://github.com/swimming-lab/study-java-object/raw/master/09-design-flexibility/9-6.png)
 
 [그림9-6]
 
@@ -151,7 +151,7 @@ public class Movie {
 
 역전은 의존성의 방향뿐만 아니라 인터페이스의 소유권에도 적용된다.
 
-![[그림9-9] 인터페이스가 서버 모듈 쪽에 위치하는 전통적인 모듈 구조](https://github.com/swimming-lab/study-java-object/raw/master/09-design-flexibilityt/9-9.png)
+![[그림9-9] 인터페이스가 서버 모듈 쪽에 위치하는 전통적인 모듈 구조](https://github.com/swimming-lab/study-java-object/raw/master/09-design-flexibility/9-9.png)
 
 [그림9-9] 인터페이스가 서버 모듈 쪽에 위치하는 전통적인 모듈 구조
 
@@ -159,7 +159,7 @@ Movie가 DiscountPolicy에 의존하고 있다. Movie를 정상적으로 컴파�
 
 의존성 정의에 따라 Movie는 DiscountPolicy를 수정하지 않을 경우에는 영향을 받지 말아야 한다. 컴파일 측면에서 보면 DiscountPolicy가 포함된 패키지 안에 어떤 클래스가 수정된다면 패키지 전체가 재배포돼야 한다. 이로 인해 Movie 클래스가 포함된 패키지 역시 재컴파일돼야 한다. 이처럼 서로 의존하는 패키지가 있다면 애플리케이션 코드 전체로 번져갈 것이다. 따라서 불필요한 클래스들을 같은 패키지에 두는 것은 전체적인 빌드 시간을 가파르게 상승시키는 원인이 된다.
 
-![[그림9-10] 인터페이스의 소유권을 역전시킨 객체지향적인 모듈 구조](https://github.com/swimming-lab/study-java-object/raw/master/09-design-flexibilityt/9-10.png)
+![[그림9-10] 인터페이스의 소유권을 역전시킨 객체지향적인 모듈 구조](https://github.com/swimming-lab/study-java-object/raw/master/09-design-flexibility/9-10.png)
 
 [그림9-10] 인터페이스의 소유권을 역전시킨 객체지향적인 모듈 구조
 
